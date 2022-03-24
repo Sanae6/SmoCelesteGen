@@ -8,13 +8,16 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
-      <PackageReference Include="Syroot.NintenTools.Bfres" Version="1.5.0" />
-      <PackageReference Include="Syroot.NintenTools.Byaml" Version="3.0.0-alpha1" />
+        <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+        <PackageReference Include="SixLabors.ImageSharp" Version="2.1.0" />
+        <PackageReference Include="Syroot.NintenTools.Byaml" Version="3.0.0-alpha1" />
+        <PackageReference Include="Syroot.NintenTools.Yaz0" Version="0.6.1" />
+        
+        <Reference Include="deps/BfresLibrary.dll" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\CelesteParser\CelesteParser.csproj" />
+        <ProjectReference Include="..\CelesteParser\CelesteParser.csproj" />
     </ItemGroup>
 
 </Project>

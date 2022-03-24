@@ -69,6 +69,6 @@ public class Parser {
         public string Name { get; set; }
         public object? Value { get; set; }
         public Dictionary<string, object>? Attributes { get; init; }
-        public List<Element>? Children { get; init; }
+        public List<Element> Children { get; init; } = null!;
     }
 }
