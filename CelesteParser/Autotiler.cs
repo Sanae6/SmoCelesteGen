@@ -7,7 +7,7 @@ public class Autotiler {
     public Dictionary<char, Tileset> TileLookup = new Dictionary<char, Tileset>();
     public Autotiler(string filename) {
         XmlDocument document = new XmlDocument();
-        document.LoadXml(File.ReadAllText(Path.Combine(ContentBase, "ForegroundTiles.xml")));
+        document.LoadXml(File.ReadAllText(Path.Combine(ContentBase, filename)));
         foreach (object elObj in document.GetElementsByTagName("Tileset")) {
             XmlElement tilesetElement = (XmlElement) elObj;
             char tileId = Convert.ToChar(tilesetElement.GetAttribute("id"));
