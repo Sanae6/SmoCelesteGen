@@ -10,9 +10,12 @@ public class Autotiler {
         document.LoadXml(File.ReadAllText(Path.Combine(ContentBase, filename)));
         foreach (object elObj in document.GetElementsByTagName("Tileset")) {
             XmlElement tilesetElement = (XmlElement) elObj;
-            char tileId = Convert.ToChar(tilesetElement.GetAttribute("id"));
-            
-            
+            char tileId = tilesetElement.AttrChar("id");
+            if (tilesetElement.HasAttribute("copy")) {
+                tilesetElement.GetAttribute("copy");
+            }
+            tilesetElement.GetAttribute("ignores");
+            tilesetElement.GetAttribute("path");
         }
     }
 
