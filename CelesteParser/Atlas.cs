@@ -9,7 +9,11 @@ namespace CelesteParser;
 
 public class Atlas {
     public static string ContentBase { get; set; }
+    public static Atlas FgTiles;
+    private Dictionary<string, string> NameFileMap = new Dictionary<string, string>();
+    private Dictionary<string, Image<Rgba32>> ImageCache = new Dictionary<string, Image<Rgba32>>();
     public static Atlas FromPath(string atlasPath, DataFormat dataFormat) {
+        Atlas atlas = new Atlas();
         switch (dataFormat) {
             case DataFormat.Packer: {
                 string path = $"{atlasPath}.meta";
@@ -30,7 +34,10 @@ public class Atlas {
                     Console.WriteLine("Generating subimages");
                     short subLen = reader.ReadInt16();
                     for (int j = 0; j < subLen; j++) {
-                        string texName = $"{reader.ReadString()}.png";
+                        string baseName = reader.ReadString();
+                        string texName = $"{baseName}.png";
+                        atlas.NameFileMap[baseName] = texName;
+                        
                         // Console.WriteLine($"Creating {texName}");
                         Rectangle crop = new Rectangle(reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16());
                         Point drawOffset = new Point(reader.ReadInt16(), reader.ReadInt16());
@@ -48,7 +55,16 @@ public class Atlas {
                 break;
             }
         }
-        return new Atlas();
+        return atlas;
+    }
+
+    public Image<Rgba32> this[string location] {
+        get {
+            string file = NameFileMap[location];
+            if (ImageCache.TryGetValue(file, out Image<Rgba32>? image))
+                return image;
+            return ImageCache[file] = Image.Load<Rgba32>(file);
+        }
     }
 
     private class DataDecoder : IImageDecoder {
