@@ -18,7 +18,7 @@ public class Atlas {
             case DataFormat.Packer: {
                 string path = $"{atlasPath}.meta";
                 if (!File.Exists(path)) throw new FileNotFoundException($"{path} doesn't exist!");
-                using FileStream fs = File.OpenRead(path);
+                using Stream fs = new MemoryStream(File.ReadAllBytes(path));
                 using BinaryReader reader = new BinaryReader(fs);
                 reader.ReadInt32();
                 reader.ReadString();
@@ -43,12 +43,12 @@ public class Atlas {
                         Point drawOffset = new Point(reader.ReadInt16(), reader.ReadInt16());
                         Size drawSize = new Size(reader.ReadInt16(), reader.ReadInt16());
 
-                        if (File.Exists(texName)) continue;
-
-                        string? dirName = Path.GetDirectoryName(texName);
-                        if (!Directory.Exists(dirName)) Directory.CreateDirectory(dirName);
-                        Image<Rgba32> subTex = vtex.Clone();
-                        subTex.Mutate(x => x.Crop(crop));
+                        // if (File.Exists(texName)) continue;
+                        //
+                        // string? dirName = Path.GetDirectoryName(texName);
+                        // if (!Directory.Exists(dirName)) Directory.CreateDirectory(dirName);
+                        // Image<Rgba32> subTex = vtex.Clone();
+                        // subTex.Mutate(x => x.Crop(crop));
                         // subTex.SaveAsPng(texName);
                     }
                 }

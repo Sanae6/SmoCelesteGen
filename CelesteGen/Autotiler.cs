@@ -1,5 +1,9 @@
-﻿using System.Xml;
+﻿using System.Numerics;
+using System.Runtime.InteropServices;
+using System.Xml;
+using BfresLibrary;
 using SixLabors.ImageSharp;
+using Buffer = BfresLibrary.Buffer;
 using RgbaImage = SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.Rgba32>;
 
 namespace CelesteParser;
@@ -48,14 +52,17 @@ public class Autotiler {
                                 continue;
                         }
                     }
+
                     data.Masked.Add(masked);
                 }
+
                 foreach (string tile in set.GetAttribute("tiles").Split(';')) {
                     string[] pointStr = tile.Split(',');
                     Point point = new Point(int.Parse(pointStr[0]), int.Parse(pointStr[1]));
                     RgbaImage? image = tileset[point];
                     tiles.Textures.Add(image!);
                 }
+
                 if (set.HasAttribute("sprites")) {
                     foreach (string item2 in set.GetAttribute("sprites").Split(','))
                         tiles.OverlapSprites.Add(item2);
@@ -71,60 +78,47 @@ public class Autotiler {
                 if (a.Mask[k] == 2) num2++;
                 if (b.Mask[k] == 2) num3++;
             }
+
             return num2 - num3;
         });
     }
 
-    public Generated Generate() {
-        TileGrid tileGrid = new TileGrid(8, 8, tilesX, tilesY);
-        AnimatedTiles animatedTiles = new AnimatedTiles(tilesX, tilesY, GFX.AnimatedTilesBank);
-        Rectangle empty = Rectangle.Empty;
-        if (forceSolid) {
-            empty = new Rectangle(startX, startY, tilesX, tilesY);
-        }
-        if (mapData != null) {
-            for (int i = startX; i < startX + tilesX; i += 50) {
-                for (int j = startY; j < startY + tilesY; j += 50) {
-                    if (!mapData.AnyInSegmentAtTile(i, j)) {
-                        j = j / 50 * 50;
-                    } else {
-                        int k = i;
-                        int num = Math.Min(i + 50, startX + tilesX);
-                        while (k < num) {
-                            int l = j;
-                            int num2 = Math.Min(j + 50, startY + tilesY);
-                            while (l < num2) {
-                                Autotiler.Tiles tiles = this.TileHandler(mapData, k, l, empty, forceID, behaviour);
-                                if (tiles != null) {
-                                    tileGrid.Tiles[k - startX, l - startY] = Calc.Random.Choose(tiles.Textures);
-                                    if (tiles.HasOverlays) {
-                                        animatedTiles.Set(k - startX, l - startY, Calc.Random.Choose(tiles.OverlapSprites), 1f, 1f);
-                                    }
-                                }
-                                l++;
-                            }
-                            k++;
-                        }
-                    }
+    public Model[] GenerateModels(Map map) {
+        FullMapTilemap tilemap = new FullMapTilemap(map);
+        List<Model> models = new List<Model>();
+        
+        foreach (Level level in map.Levels) {
+            Model model = new Model();
+            Material material = new Material();
+            VertexBuffer buffer = new VertexBuffer();
+            Buffer posBuffer = new Buffer();
+            buffer.Buffers.Add(posBuffer);
+            Shape shape = new Shape {
+                VertexBufferIndex = 0,
+                Flags = ShapeFlags.HasVertexBuffer
+            };
+            model.Materials.Add("basicMat", material);
+            model.VertexBuffers.Add(buffer);
+            model.Shapes.Add("BaseShape", shape);
+
+            List<Vector3> vertices = new List<Vector3>();
+            for (int x = level.X; x < level.X + level.Width; x++) {
+                for (int y = level.Y; y < level.Y + level.Height; y++) {
+                    vertices.Add(new Vector3());
                 }
             }
-        } else {
-            for (int m = startX; m < startX + tilesX; m++) {
-                for (int n = startY; n < startY + tilesY; n++) {
-                    Autotiler.Tiles tiles2 = this.TileHandler(null, m, n, empty, forceID, behaviour);
-                    if (tiles2 != null) {
-                        tileGrid.Tiles[m - startX, n - startY] = Calc.Random.Choose(tiles2.Textures);
-                        if (tiles2.HasOverlays) {
-                            animatedTiles.Set(m - startX, n - startY, Calc.Random.Choose(tiles2.OverlapSprites), 1f, 1f);
-                        }
-                    }
-                }
+
+            posBuffer.Data = new byte[vertices.Count][];
+            posBuffer.Stride = 12;
+            for (int i = 0; i < vertices.Count; i++) {
+                Vector3 vertex = vertices[i];
+                posBuffer.Data[i] = MemoryMarshal.Cast<Vector3, byte>(MemoryMarshal.CreateReadOnlySpan(ref vertex, 1)).ToArray();
             }
+
+            models.Add(model);
         }
-        return new Autotiler.Generated {
-            TileGrid = tileGrid,
-            SpriteOverlay = animatedTiles
-        };
+
+        return models.ToArray();
     }
 
     private class Masked {
@@ -157,10 +151,5 @@ public class Autotiler {
         public Tiles Padded;
         public int ScanHeight;
         public int ScanWidth;
-    }
-    public struct Generated
-    {
-        public TileGrid TileGrid;
-        public AnimatedTiles SpriteOverlay;
     }
 }

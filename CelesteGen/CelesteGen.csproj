@@ -10,10 +10,11 @@
     <ItemGroup>
         <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
         <PackageReference Include="SixLabors.ImageSharp" Version="2.1.0" />
-        <PackageReference Include="Syroot.NintenTools.Byaml" Version="3.0.0-alpha1" />
-        <PackageReference Include="Syroot.NintenTools.Yaz0" Version="0.6.1" />
         
         <Reference Include="deps/BfresLibrary.dll" />
+        <Reference Include="deps/Syroot.BinaryData.dll" />
+        <Reference Include="deps/Syroot.Maths.dll" />
+        <Reference Include="deps/Syroot.NintenTools.NSW.Bntx.dll" />
     </ItemGroup>
 
     <ItemGroup>
