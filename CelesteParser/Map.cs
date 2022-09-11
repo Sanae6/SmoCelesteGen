@@ -3,14 +3,16 @@
 namespace CelesteParser;
 
 public class Map {
-    public Rectangle Bounds;
+    public Point Min, Max;
     public List<Level> Levels = new List<Level>();
+    public Rectangle Bounds => new Rectangle(Min, (Size) (Max - (Size) Min));
     // todo: styles (need to use ahorn or a pre-existing map)
 
     public void AddLevel(Level level) {
         Levels.Add(level);
-        // Bounds.X = Math.Max(level.X, Bounds.X);
-        // Bounds.Y = Math.Max(level.Y, Bounds.Y);
-        // if (level.Bounds.Right > Bounds.Right) 
+        if (level.X < Min.X) Min.X = level.X;
+        if (level.Y < Min.Y) Min.Y = level.Y;
+        if (level.Bounds.Right > Max.X) Max.X = level.Bounds.Right;
+        if (level.Bounds.Right > Max.Y) Max.Y = level.Bounds.Right;
     }
 }

@@ -5,37 +5,42 @@ using SixLabors.ImageSharp;
 namespace CelesteParser;
 
 public class Tilemap {
-    private static readonly Regex NewlineRegex = new Regex("\\r\\n|\\n\\r|\\n|\\r");
-    protected readonly char[] Tiles;
-    private readonly Rectangle Bounds;
-    public virtual int Width => Bounds.Width;
-    public virtual int Height => Bounds.Height;
+    private static readonly Regex NewlineRegex = new Regex("\\r\\n|\\n\\r|\\n|\\r", RegexOptions.Compiled);
+    public const char EmptyTile = ' ';
+    public const char AirTile = '0';
+    public const char Wildcard = '*';
+    protected char[]? Tiles { get; private set; }
+    public Rectangle Bounds { get; protected set; }
+    public int Width => Bounds.Width;
+    public int Height => Bounds.Height;
 
     protected Tilemap(Rectangle bounds) {
+        Bounds = bounds;
     }
 
     public Tilemap(Rectangle bounds, string tilemap) {
         Bounds = bounds;
-        Initialize();
+        Tiles = Enumerable.Repeat(AirTile, Width * Height).ToArray();
+        ApplyMap(0, 0, tilemap);
     }
 
     protected void Initialize() {
-        Array.Fill(Tiles, '0');
+        Tiles = Enumerable.Repeat(AirTile, Width * Height).ToArray();
     }
 
     public void ApplyMap(int startX, int startY, string tilemap) {
         string[] strings = NewlineRegex.Split(tilemap);
-        for (int y = 0; y < strings.Length; y++) {
+        for (int y = 0; y < Math.Clamp(strings.Length, 0, Height); y++) {
             string current = strings[y];
-            for (int x = 0; x < current.Length; x++) {
+            for (int x = 0; x < Math.Clamp(current.Length, 0, Width); x++) {
                 this[startX + x, startY + y] = current[x];
             }
         }
     }
 
-    public char this[int x, int y] {
-        get => Tiles[(y - Bounds.Y) * Width + (x - Bounds.X)];
-        set => Tiles[(y - Bounds.Y) * Width + (x - Bounds.X)] = value;
+    public virtual char this[int x, int y] {
+        get => Tiles![y * Width + x];
+        set => Tiles![y * Width + x] = value;
     }
 
     public override string ToString() {

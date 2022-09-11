@@ -7,6 +7,7 @@ namespace CelesteParser;
 using RgbaImage = Image<Rgba32>;
 
 public class Tileset {
+    public string Name;
     public RgbaImage?[,] Tiles;
     public RgbaImage MainTexture;
     public int TileHeight { get; private set; }
@@ -16,10 +17,11 @@ public class Tileset {
     public RgbaImage? this[Point point] => Tiles[point.X, point.Y];
     public RgbaImage? this[int index] => index < 0 ? null : Tiles[index % Tiles.GetLength(0), index / Tiles.GetLength(0)];
 
-    public Tileset(RgbaImage texture, int tileWidth, int tileHeight) {
+    public Tileset(string name, RgbaImage texture, int tileWidth, int tileHeight) {
+        Name = name;
         MainTexture = texture;
         TileWidth = tileWidth;
-        TileHeight = TileHeight;
+        TileHeight = tileHeight;
         Tiles = new RgbaImage[MainTexture.Width / tileWidth, MainTexture.Height / tileHeight];
         for (int i = 0; i < MainTexture.Width / tileWidth; i++) {
             for (int j = 0; j < MainTexture.Height / tileHeight; j++) {

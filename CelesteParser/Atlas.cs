@@ -26,19 +26,15 @@ public class Atlas {
                 int len = reader.ReadInt16();
                 for (int i = 0; i < len; i++) {
                     string vtexPath = reader.ReadString();
-                    Image<Rgba32> vtex;
                     Console.WriteLine($"Loading vtex {vtexPath}");
-                    // using(FileStream subFs = File.OpenRead(Path.Combine(ContentBase, $"{vtexPath}.data"))) {
-                    vtex = Image.Load<Bgra32>(File.ReadAllBytes(Path.Combine(ContentBase, $"{vtexPath}.data")), new DataDecoder()).CloneAs<Rgba32>();
-                    // }
+                    Image<Rgba32> vtex = Image.Load<Bgra32>(File.ReadAllBytes(Path.Combine(ContentBase, $"{vtexPath}.data")), new DataDecoder()).CloneAs<Rgba32>();
                     Console.WriteLine("Generating subimages");
                     short subLen = reader.ReadInt16();
                     for (int j = 0; j < subLen; j++) {
-                        string baseName = reader.ReadString();
+                        string baseName = reader.ReadString().Replace('\\', '/');
                         string texName = $"{baseName}.png";
                         atlas.NameFileMap[baseName] = texName;
-                        
-                        // Console.WriteLine($"Creating {texName}");
+
                         Rectangle crop = new Rectangle(reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16());
                         Point drawOffset = new Point(reader.ReadInt16(), reader.ReadInt16());
                         Size drawSize = new Size(reader.ReadInt16(), reader.ReadInt16());
